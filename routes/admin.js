@@ -19,6 +19,8 @@ router.get('/categorias', (req, res) => {
     }).catch((err) => {
         req.flash("error_msg", "Houve um erro ao listar as categorias")
         res.redirect("/admin")
+    }).catch((err) => {
+        
     })
 })
 
@@ -70,14 +72,14 @@ router.get("/categorias/edit/:id", (req, res) => {
     })
 })
 
-router.post("categorias/edit", (req, res) => {
+router.post("/categorias/edit", (req, res) => {
     Categoria.findOne({_id:req.body.id}).lean().then((categoria) => {
 
         categoria.nome = req.body.nome
         categoria.slug = req.body.slug
 
         categoria.save().then(() => {
-            req.flash("success", "Categoria editada com sucesso")
+            req.flash("success_msg", "Categoria editada com sucesso")
             res.redirect("/admin/categorias")
         }).catch((err) => {
             req.flash("error_msg", "Houve um erro interno a edição da categoria")
@@ -92,8 +94,37 @@ router.post("categorias/edit", (req, res) => {
     })
 })
 
-router.get('/teste', (req, res) => {
-    res.send("Só teste")
+router.post('/categorias/deletar/:id', (req,res) => {
+    Categoria.findOneAndDelete({_id: req.params.id}).then(()=> {
+        req.flash('success_msg','Categoria deletada com sucesso')
+        res.redirect('/admin/categorias')
+    }).catch((err) => {
+        req.flash('error_msg','Houve um erro ao deletar a categoria')
+        res.redirect('/admin/categorias')
+    })
 })
+
+router.get('/postagens', (req, res) => {
+    res.render("admin/postagens")
+})
+
+router.get('/postagens/add', (req, res) => {
+    Categoria.find().lean().then((categorias) => {
+        res.render("admin/addpostagem", {categorias: categorias})
+    }).catch((error) => {
+        req.flash("error_msg", "Houve um erro ao carregar o formulário")
+        res.redirect("/admin")
+    })
+})
+
+// router.get('/categorias', (req,res) => {
+// 	Categoria.find().sort({_id: 'desc'}).lean().then((categoria) => {	
+// 		res.render("../views/admin/categorias", {categoria:categoria})	
+// 	}).catch((err) =>{	
+// 		req.flash("error_msg", "Nao foi possivel baixar nenhuma categoria")
+// 		res.redirect("/admin/categorias")
+// 	})
+// })
+
 
 module.exports = router
