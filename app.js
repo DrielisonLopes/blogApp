@@ -12,7 +12,7 @@ const admin = require('./routes/admin')
 
 // Configurações
     // Sessão
-    app.use(session.session({
+    app.use(session({
         secret: "cursodenode",
         resave: true,
         saveUninitialized: true
