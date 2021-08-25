@@ -14,7 +14,12 @@ router.get('/posts', (req, res) => {
 })
 
 router.get('/categorias', (req, res) => {
-    res.render("admin/categorias")
+    Categoria.find().lean().sort({date: 'desc'}).then((categorias) =>{
+        res.render("admin/categorias", {categorias: categorias})
+    }).catch((err) => {
+        req.flash("error_msg", "Houve um erro ao listar as categorias")
+        res.redirect("/admin")
+    })
 })
 
 router.get('/categorias/add', (req, res) => {
@@ -52,6 +57,39 @@ router.post("/categorias/nova", (req, res) => {
             res.redirect("/admin")
         })
     }
+})
+
+router.get("/categorias/edit/:id", (req, res) => {
+    // fazer busca pelo id para poder fazer a alteração
+    // utilizar params pq está trabalhando com parametros. Body seria para formulários
+    Categoria.findOne({_id:req.params.id}).lean().then((categoria) => {
+        res.render("admin/editcategorias", {categoria:categoria})
+    }).catch((err) => {
+        req.flash("error_msg", "Esta categoria não existe")
+        res.redirect("/admin/categorias")
+    })
+})
+
+router.post("categorias/edit", (req, res) => {
+    Categoria.findOne({_id:req.body.id}).lean().then((categoria) => {
+
+        categoria.nome = req.body.nome
+        categoria.slug = req.body.slug
+
+        categoria.save().then(() => {
+            req.flash("success", "Categoria editada com sucesso")
+            res.redirect("/admin/categorias")
+        }).catch((err) => {
+            req.flash("error_msg", "Houve um erro interno a edição da categoria")
+            res.redirect("/admin/categorias")
+        })
+
+        // falta sistema de validação
+
+    }).catch((err) => {
+        req.flash("error_msg", "Houve um erro ao editar a categoria")
+        res.redirect("/admin/categorias")
+    })
 })
 
 router.get('/teste', (req, res) => {
