@@ -4,11 +4,28 @@ const handlebars = require('express-handlebars')
 //const bodyParser = require('body-parser') bodyParser passou a ser do node sem precisar invocar
 const path = require('path') // modulo para manipular pastas
 const mongoose = require('mongoose')
+const session = require('express-session')
+const flash = require('connect-flash')
 
 const app = express()
 const admin = require('./routes/admin')
 
 // Configurações
+    // Sessão
+    app.use(session.session({
+        secret: "cursodenode",
+        resave: true,
+        saveUninitialized: true
+    }))
+    app.use(flash()) //para configuar o flash() precisa estar em baixo da sessão
+    // Middleware
+    app.use((req, res, next) => {
+        // usa locals. para guardar qualquer coisa nas variáveis globais
+        res.locals.success_msg = req.flash('success_msg')
+        res.locals.error_msg = req.flash('error_msg')
+        next()
+    })
+
     // Body Parser
     app.use(express.urlencoded({extended:true}))
     app.use(express.json());
