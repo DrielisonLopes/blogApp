@@ -1,5 +1,5 @@
-const mongose = require('mongose')
-const Schema = require('Schema')
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
 
 const Postagem = new Schema({
     titulo:{
