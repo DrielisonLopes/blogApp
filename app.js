@@ -2,13 +2,14 @@
 const express = require('express')
 const handlebars = require('express-handlebars')
 //const bodyParser = require('body-parser') bodyParser passou a ser do node sem precisar invocar
+const app = express()
+const admin = require('./routes/admin')
 const path = require('path') // modulo para manipular pastas
 const mongoose = require('mongoose')
 const session = require('express-session')
 const flash = require('connect-flash')
-
-const app = express()
-const admin = require('./routes/admin')
+require("./models/Postagem")
+const Postagem = mongoose.model("postagens")
 
 // Configurações
     // Sessão
@@ -45,6 +46,23 @@ const admin = require('./routes/admin')
     app.use(express.static(path.join(__dirname, 'public'))) // dirname para caminho absoluto
     
 // Rotas
+app.use('/', (req, res) => {
+    Postagem.find().populate("categoria").sort({data: "desc"}).then((postagens) => {
+        res.render("index", {postagens: postagens})
+    }).catch((err) => {
+        req.flash("error_msg", "Houve um erro interno no caminho")
+        res.redirect("/404")
+    })
+})
+
+app.get("/404", (req, res) => {
+    res.send("Erro 404!")
+})
+
+app.use('/posts', (req, res) => {
+    res.send("Lista Posts")
+})
+
 app.use('/admin', admin)
 
 // Outros
