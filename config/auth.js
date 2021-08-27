@@ -1,14 +1,14 @@
 const localStrategy = require("passport-local").Strategy
 const mongoose = require("mongoose")
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcryptjs")
 
 // Model de usuário
-requiure("../models/Usuario")
+require("../models/Usuario")
 const Usuario = mongoose.model("usuarios")
 
 module.exports = function(passport){
     // para saber qual campo quer analisar, no caso: email
-    passport.use(new localStrategy({usernameField: 'email'}, (email, senha, done) => {
+    passport.use(new localStrategy({usernameField: 'email', passwordField:"senha"}, (email, senha, done) => {
         // vai procurar um email igual o da autenticação
         Usuario.findOne({email: email}).lean().then((usuario) => {
 
@@ -23,7 +23,7 @@ module.exports = function(passport){
             bcrypt.compare(senha, usuario.senha, (erro, batem) => {
                 // se as senhas batem ou não
                 if(batem){
-                    return done(null, user)
+                    return done(null, usuario)
                 }else{
                     return done(null, false, {message: "Senha incorreta"})
                 }
@@ -37,8 +37,8 @@ module.exports = function(passport){
         })
         // para procurar o usuário pelo id
         passport.deserializeUser((id, done) => {
-            User.findById(id, (err, usuario) => {
-                done(err, user)
+            Usuario.findById(id, (err, usuario) => {
+                done(err, usuario)
             })
         })
 }
