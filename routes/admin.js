@@ -124,7 +124,7 @@ router.post('/categorias/deletar/:id', (req,res) => {
 
 router.get('/postagens', (req, res) => {
 
-    Postagem.find().populate("categoria").sort({data:"desc"}).then((postagens) => {
+    Postagem.find().lean().populate("categoria").sort({data:"desc"}).then((postagens) => {
         res.render("admin/postagens", {postagens: postagens})
     }).catch((err) => {
         req.flash("error_msg", "Houve um erro ao listar as postagens")
@@ -172,8 +172,8 @@ router.post("/postagens/nova", (req, res) => {
 
 router.get("/postagens/edit/:id", (req, res) => {
     //pesquisando por uma postagem e dentro por uma categoria
-    Postagem.findOne({_id: req.params.id}).then((postagem) => {
-        Categoria.find().then((categoria) => {
+    Postagem.findOne({_id: req.params.id}).lean().then((postagem) => {
+        Categoria.find().lean().then((categoria) => {
             res.render("admin/editpostagens", {categorias: categorias, postagem: postagem})
         }).catch((err) => {
             req.flash("error_msg", "Houve um erro ao listar as categorias")
@@ -188,7 +188,7 @@ router.get("/postagens/edit/:id", (req, res) => {
 
 router.post("/postagem/edit", (req, res) => {
 
-    Postagem.findOne({_id:req.body.id}).then((postagem) => {
+    Postagem.findOne({_id:req.body.id}).lean().then((postagem) => {
 
         postagem.titulo = req.body.titulo
         postagem.slug = req.body.slug
